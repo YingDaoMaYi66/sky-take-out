@@ -37,8 +37,8 @@ public class EmployeeController {
     /**
      * 登录
      *
-     * @param employeeLoginDTO
-     * @return
+     * @param employeeLoginDTO  封装了用户名和密码
+     * @return  返回响应状态
      */
     @PostMapping("/login")
     @ApiOperation(value = "员工登录")
@@ -68,7 +68,7 @@ public class EmployeeController {
     /**
      * 退出
      *
-     * @return
+     * @return 返回响应状态
      */
     @PostMapping("/logout")
     @ApiOperation(value="员工退出")
@@ -79,8 +79,8 @@ public class EmployeeController {
 
     /**
      * 新增员工
-     * @param employeeDTO
-     * @return
+     * @param employeeDTO  封装员工信息
+     * @return  返回响应状态
      */
     @PostMapping
     @ApiOperation(value = "新增员工")
@@ -99,6 +99,20 @@ public class EmployeeController {
         PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
         return Result.success(pageResult);
 
+    }
+
+    /**
+     * 修改员工账号状态
+     * @param status 路径参数 1为启用 0 为禁用
+     * @param id 必须  员工id
+     * @return 返回修改成功
+     **/
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用禁用员工账号")
+    public Result startOrStop(@PathVariable("status") Integer status, Long id) {
+        log.info("启用禁用员工账号：id为：{}，状态为：{}", id, status);
+        employeeService.startOrStop(status, id);
+        return Result.success();
     }
 
 }
