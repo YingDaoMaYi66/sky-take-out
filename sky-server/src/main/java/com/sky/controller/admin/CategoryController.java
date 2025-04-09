@@ -44,4 +44,37 @@ public class CategoryController{
         PageResult pageResult = categoryService.pageQuery(categoryPageQueryDTO);
         return Result.success(pageResult);
     }
+
+    /**
+     * 删除分类
+     * @param id 分类dto
+     * @return 响应类
+     **/@DeleteMapping
+    @ApiOperation("删除分类")
+    public Result<String> deleteBy(Long id){
+        log.info("删除分类：{}", id);
+        categoryService.deleteById(id);
+        return Result.success();
+    }
+
+    /**
+     * 修改分类
+     * @param categoryDTO 分类dto
+     * @return 响应类
+     **/
+
+    @PostMapping("/update")
+    @ApiOperation("修改分类")
+    public Result<String> update(@RequestBody CategoryDTO categoryDTO){
+        log.info("修改分类：{}", categoryDTO);
+        categoryService.update(categoryDTO);
+        return Result.success();
+    }
+    @PostMapping("/status/{status}")
+    @ApiOperation("启用、禁用分类")
+    public Result<String> startOrStop(@PathVariable("status") Integer status, Long id){
+        log.info("启用、禁用分类：{}", id);
+        categoryService.startOrStop(status, id);
+        return Result.success();
+    }
 }
