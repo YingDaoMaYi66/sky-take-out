@@ -50,6 +50,7 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
             log.info("当前员工id{}", empId);
             //将当前员工id存入ThreadLocal中，用于提供本线程的全局id
             BaseContext.setCurrentId(empId);
+
             //3、通过，放行
             return true;
         } catch (Exception ex) {

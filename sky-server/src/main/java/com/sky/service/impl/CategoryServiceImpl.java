@@ -12,13 +12,17 @@ import com.sky.mapper.CategoryMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
+import com.sky.result.Result;
 import com.sky.service.CategoryService;
+import io.swagger.annotations.ApiOperation;
 import io.swagger.models.auth.In;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.GetMapping;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class CategoryServiceImpl implements CategoryService {
@@ -108,4 +112,16 @@ public class CategoryServiceImpl implements CategoryService {
                 .build();
         categoryMapper.update(category);
     }
+    /**
+     * 根据类型查询分类
+     * @param type 分类类型
+     * @return 分类列表
+     */
+    @Override
+    public List<Category> list(Integer type) {
+
+        return categoryMapper.list(type);
+    }
+
+
 }
