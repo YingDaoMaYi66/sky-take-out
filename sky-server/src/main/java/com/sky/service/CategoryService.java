@@ -7,7 +7,7 @@ import com.sky.result.PageResult;
 
 import java.util.List;
 
-public interface CategoryService {
+public interface  CategoryService {
 
     /**
      * 新增分类

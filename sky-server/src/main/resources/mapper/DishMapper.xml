@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.DishMapper">
+<!--    useGeneratedKeys="true"：告诉 MyBatis 使用数据库生成的主键。-->
+<!--    keyProperty="id"：指定实体类中用于接收主键值的属性（这里是 id）。-->
+<!--    数据库支持：数据库需要支持自动生成主键（如 MySQL 的 AUTO_INCREMENT 或 Oracle 的序列-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        Insert Into  dish (name,category_id,price,image,description,create_time,update_time,create_user,update_user,status)
+        Values
+        (#{name},#{categoryId},#{price},#{image},#{description},#{createTime},#{updateTime},#{createUser},#{updateUser},#{status})
+    </insert>
+    <select id="pageQuery" resultType="com.sky.vo.DishVO" parameterType="com.sky.dto.DishPageQueryDTO">
+        select d.*,c.name as categoryName from dish d left outer join category c on d.category_id = c.id
+        <where>
+            <if test="name != null">
+                and d.name like concat('%',#{name},'%')
+            </if>
+            <if test="categoryId != null">
+                and d.category_id = #{categoryId}
+            </if>
+            <if test="status != null">
+                and d.status = #{status}
+            </if>
+        </where>
+        order by d.create_time desc
+    </select>
+</mapper>
