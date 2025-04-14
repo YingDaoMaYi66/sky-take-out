@@ -1,10 +1,8 @@
 package com.sky.service.impl;
-
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
-import com.sky.context.BaseContext;
 import com.sky.dto.CategoryDTO;
 import com.sky.dto.CategoryPageQueryDTO;
 import com.sky.entity.Category;
@@ -12,16 +10,10 @@ import com.sky.mapper.CategoryMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
-import com.sky.result.Result;
 import com.sky.service.CategoryService;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -59,7 +51,7 @@ public class CategoryServiceImpl implements CategoryService {
     /**
      *
      * @param categoryPageQueryDTO 分类分页查询DTO 页码，每页记录数，分类名称，分类类型
-     * @return
+     * @return 返回当前菜品分类的分页数据
      */
     @Override
     public PageResult pageQuery(CategoryPageQueryDTO categoryPageQueryDTO) {

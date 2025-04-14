@@ -11,4 +11,3 @@ sky:
     access-key-id: ${ALIBABA_ACCESS_KEY_ID}
     access-key-secret: ${ALIBABA_ACCESS_KEY_SECRET}
     bucket-name: sky-itcast-yingdaomayi
-
