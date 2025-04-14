@@ -47,4 +47,11 @@ public interface SetmealMapper {
      */
     @Delete("delete from setmeal where id = #{id}")
     void deleteById(Long setmealId);
+    /**
+     * 更新套餐
+     * @param setmeal 套餐id
+     * @return 套餐和菜品的关联关系
+     */
+    @AutoFill(OperationType.UPDATE)
+    void update(Setmeal setmeal);
 }

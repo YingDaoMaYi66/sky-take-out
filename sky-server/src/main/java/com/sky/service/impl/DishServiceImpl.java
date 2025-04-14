@@ -8,10 +8,13 @@ import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.entity.Setmeal;
+import com.sky.entity.SetmealDish;
 import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
 import com.sky.mapper.SetmealDishMapper;
+import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
 import com.sky.vo.DishVO;
@@ -19,6 +22,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +38,9 @@ public class DishServiceImpl implements DishService {
     private DishFlavorMapper dishFlavorMapper;
     @Autowired
     private SetmealDishMapper setmealDishMapper;
+    @Autowired
+    private SetmealMapper setmealMapper;
+
     /**
      * 新增菜品和对应的口味 多表操作涉及到事务的一致性，需要添加事务注解
      * @param dishDto 前端DTO类
@@ -154,4 +162,39 @@ public class DishServiceImpl implements DishService {
                 .build();
         return dishMapper.list(dish);
     }
+    /**
+     * 菜品的起售与停售
+     * @param status 菜品状态
+     * @param id 菜品id
+     */
+    @Override
+    public void stratOrStop(Integer status, Long id) {
+        //修改菜品起售停售状态
+        Dish dish = Dish.builder()
+                .id(id)
+                .status(status)
+                .build();
+        dishMapper.update(dish);
+        //修改套餐起售停售状态
+        if (status == StatusConstant.DISABLE) {
+            //如果是停售操作，还需要将包含当前的菜品的套餐也停售
+            List<Long> dishIds = new ArrayList<>();
+            //将当前菜品id添加到集合中
+            dishIds.add(id);
+            //根据菜品id查询相关套餐id
+            List<Long> setmealIds = setmealDishMapper.getSetmealIdsByDishIds(dishIds);
+            //如果有相关套餐id，则将套餐也停售
+            if(setmealIds != null && setmealIds.size() > 0) {
+                for(long setmealId : setmealIds) {
+                    //根据套餐id修改套餐状态
+                    Setmeal setmeal = Setmeal.builder()
+                            .id(setmealId)
+                            .status(StatusConstant.DISABLE)
+                            .build();
+                    setmealMapper.update(setmeal);
+                }
+            }
+        }
+    }
+
 }
