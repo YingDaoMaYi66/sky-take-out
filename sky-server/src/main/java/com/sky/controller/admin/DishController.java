@@ -1,6 +1,4 @@
 package com.sky.controller.admin;
-
-import com.sky.constant.MessageConstant;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
@@ -54,8 +52,8 @@ public class DishController {
 
     /**
      * 批量删除菜品
-     * @param ids
-     * @return
+     * @param ids  菜品id
+     * @return 返回响应状态
      */
     @DeleteMapping
     @ApiOperation("菜品批量删除")
@@ -106,7 +104,7 @@ public class DishController {
      * 菜品起售与停售
      * @param status 菜品状态
      * @param id 菜品id
-     * @return
+     * @return 返回响应状态码
      */
     @PostMapping("/status/{status}")
     @ApiOperation("菜品起售与停售")

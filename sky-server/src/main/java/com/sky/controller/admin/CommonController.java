@@ -40,13 +40,13 @@ public class CommonController {
             extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
         //构建文件名称
-        String objectName = UUID.randomUUID().toString() + extension;
+        String objectName = UUID.randomUUID() + extension;
         //文件的请求路径
         try {
             String filepath = aliOssUtil.upload(file.getBytes(), objectName);
             return Result.success(filepath);
         } catch (IOException e) {
-            log.error("文件上传失败：{}", e);
+            log.error("文件上传失败:{}", e.toString());
         }
         //提示文件上传失败
         return Result.error(MessageConstant.UPLOAD_FAILED);
