@@ -27,11 +27,11 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
     /**
      * 校验jwt
      *
-     * @param request
-     * @param response
-     * @param handler
-     * @return
-     * @throws Exception
+     * @param request 拦截的请求
+     * @param response 返回的response
+     * @param handler 拦截的处理器
+     * @return 返回true表示放行，false表示不放行
+     * @throws Exception 异常
      */
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //判断当前拦截到的是Controller的方法还是其他资源
