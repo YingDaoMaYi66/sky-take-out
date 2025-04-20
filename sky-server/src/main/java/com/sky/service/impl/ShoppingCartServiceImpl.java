@@ -67,5 +67,52 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
 
     }
+    /**
+     * 查看购物车
+     * @return 购物车列表
+     */
+    @Override
+    public List<ShoppingCart> showShoppingCart() {
+        Long currentId = BaseContext.getCurrentId();
+        ShoppingCart shoppingCart = new ShoppingCart();
+        shoppingCart.setUserId(currentId);
+        List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+        return list;
+    }
+    /**
+     * 清空购物车
+     */
+    @Override
+    public void cleanShoppingCart() {
+        Long currentId = BaseContext.getCurrentId();
+        shoppingCartMapper.deleteByUserId(currentId);
 
+    }
+    /**
+     * 删除购物车中的一个商品
+     * @param shoppingCartDTO DTO对象 前端传回来的数据是:菜品id 口味id 套餐id
+     */
+    @Override
+    public void subShoppingCart(ShoppingCartDTO shoppingCartDTO) {
+        ShoppingCart shoppingCart = new ShoppingCart();
+        BeanUtils.copyProperties(shoppingCartDTO, shoppingCart);
+        shoppingCart.setUserId(BaseContext.getCurrentId());
+        //根据查询条件，查询当前登录用户的购物车数据
+        List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+        if (list!=null&& !list.isEmpty()){
+            shoppingCart = list.get(0);
+            Integer number = shoppingCart.getNumber();
+            if(number==1){
+                //当前购物车中只有一条数据，删除该条数据
+                shoppingCartMapper.deleteById(shoppingCart.getId());
+            }else{
+                //当前商品在购物车份数不为1，直接修改分数即可
+                shoppingCart.setNumber(shoppingCart.getNumber()-1);
+                shoppingCartMapper.updateNumberById(shoppingCart);
+            }
+
+        }
+
+
+    }
 }
