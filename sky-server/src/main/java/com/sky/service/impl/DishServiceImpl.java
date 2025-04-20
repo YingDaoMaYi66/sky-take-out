@@ -9,7 +9,6 @@ import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
 import com.sky.entity.Setmeal;
-import com.sky.entity.SetmealDish;
 import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
@@ -25,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 菜品管理
@@ -86,7 +86,7 @@ public class DishServiceImpl implements DishService {
         //判断当前菜品是否能够删除---是否在起售中
         for(Long id : ids) {
             Dish dish = dishMapper.getById(id);
-            if(dish.getStatus() == StatusConstant.ENABLE) {
+            if(Objects.equals(dish.getStatus(), StatusConstant.ENABLE)) {
                 //当前菜品正在起售中，不能删除
                 throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
             }
@@ -94,7 +94,7 @@ public class DishServiceImpl implements DishService {
 
         //判断当前菜品是否能够删除---是否被套餐关联了
         List<Long> setmealIds = setmealDishMapper.getSetmealIdsByDishIds(ids);
-        if (setmealIds != null && setmealIds.size() > 0) {
+        if (setmealIds != null && !setmealIds.isEmpty()) {
             //当前菜品被套餐关联了不能删除
             throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
         }
@@ -176,7 +176,7 @@ public class DishServiceImpl implements DishService {
                 .build();
         dishMapper.update(dish);
         //修改套餐起售停售状态
-        if (status == StatusConstant.DISABLE) {
+        if (Objects.equals(status, StatusConstant.DISABLE)) {
             //如果是停售操作，还需要将包含当前的菜品的套餐也停售
             List<Long> dishIds = new ArrayList<>();
             //将当前菜品id添加到集合中
@@ -184,7 +184,7 @@ public class DishServiceImpl implements DishService {
             //根据菜品id查询相关套餐id
             List<Long> setmealIds = setmealDishMapper.getSetmealIdsByDishIds(dishIds);
             //如果有相关套餐id，则将套餐也停售
-            if(setmealIds != null && setmealIds.size() > 0) {
+            if(setmealIds != null && !setmealIds.isEmpty()) {
                 for(long setmealId : setmealIds) {
                     //根据套餐id修改套餐状态
                     Setmeal setmeal = Setmeal.builder()
@@ -199,8 +199,8 @@ public class DishServiceImpl implements DishService {
 
     /**
      * 条件查询菜品和口味
-     * @param dish
-     * @return
+     * @param dish 菜品对象
+     * @return 菜品列表
      */
     public List<DishVO> listWithFlavor(Dish dish) {
         List<Dish> dishList = dishMapper.list(dish);

@@ -166,8 +166,7 @@ public class SetmealServiceImpl implements SetmealService {
      * @return 返回套餐列表
      */
     public List<Setmeal> list(Setmeal setmeal) {
-        List<Setmeal> list = setmealMapper.list(setmeal);
-        return list;
+        return setmealMapper.list(setmeal);
     }
 
     /**

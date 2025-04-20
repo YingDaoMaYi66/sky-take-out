@@ -46,30 +46,27 @@ public interface SetmealMapper {
 
     /**
      * 根据id删除套餐
-     * @param setmealId
+     * @param setmealId 套餐id
      */
     @Delete("delete from setmeal where id = #{id}")
     void deleteById(Long setmealId);
     /**
      * 更新套餐
      * @param setmeal 套餐id
-     * @return 套餐和菜品的关联关系
      */
     @AutoFill(OperationType.UPDATE)
     void update(Setmeal setmeal);
 
     /**
      * 动态条件查询套餐
-     * @param setmeal
-     * @return
+     * @param setmeal 套餐对象
      */
     List<Setmeal> list(Setmeal setmeal);
 
 
     /**
      * 根据套餐id查询菜品选项
-     * @param setmealId
-     * @return
+     * @param setmealId 套餐id
      */
     @Select("select sd.name, sd.copies, d.image, d.description " +
             "from setmeal_dish sd left join dish d on sd.dish_id = d.id " +
