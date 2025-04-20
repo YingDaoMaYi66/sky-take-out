@@ -63,8 +63,5 @@ public class ShoppingCartController {
         log.info("删除购物车中的一个商品,商品信息为:{}",shoppingCartDTO);
         shoppingCartService.subShoppingCart(shoppingCartDTO);
         return Result.success();
-
     }
-
-
 }

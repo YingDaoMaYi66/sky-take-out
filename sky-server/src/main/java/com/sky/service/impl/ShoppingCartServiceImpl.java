@@ -77,6 +77,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         ShoppingCart shoppingCart = new ShoppingCart();
         shoppingCart.setUserId(currentId);
         List<ShoppingCart> list = shoppingCartMapper.list(shoppingCart);
+
         return list;
     }
     /**
