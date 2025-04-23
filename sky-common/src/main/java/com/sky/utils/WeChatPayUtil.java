@@ -52,17 +52,20 @@ public class WeChatPayUtil {
     private CloseableHttpClient getClient() {
         PrivateKey merchantPrivateKey = null;
         try {
-            //merchantPrivateKey商户API私钥，如何加载商户API私钥请看常见问题
+            //merchantPrivateKey商户API私钥
             merchantPrivateKey = PemUtil.loadPrivateKey(new FileInputStream(new File(weChatProperties.getPrivateKeyFilePath())));
             //加载平台证书文件
             X509Certificate x509Certificate = PemUtil.loadCertificate(new FileInputStream(new File(weChatProperties.getWeChatPayCertFilePath())));
             //wechatPayCertificates微信支付平台证书列表。你也可以使用后面章节提到的“定时更新平台证书功能”，而不需要关心平台证书的来龙去脉
+
             List<X509Certificate> wechatPayCertificates = Arrays.asList(x509Certificate);
 
+            //WechatPayHttpClientBuilder是微信支付官方提供的HttpClient构造器继承于HttpClientBuilder
             WechatPayHttpClientBuilder builder = WechatPayHttpClientBuilder.create()
+                    //参数:商户号 商户API证书的证书序列号 商户API私钥
                     .withMerchant(weChatProperties.getMchid(), weChatProperties.getMchSerialNo(), merchantPrivateKey)
+                    //平台证书文件
                     .withWechatPay(wechatPayCertificates);
-
             // 通过WechatPayHttpClientBuilder构造的HttpClient，会自动的处理签名和验签
             CloseableHttpClient httpClient = builder.build();
             return httpClient;
@@ -132,17 +135,24 @@ public class WeChatPayUtil {
      * @return
      */
     private String jsapi(String orderNum, BigDecimal total, String description, String openid) throws Exception {
+        //这里创建了一个JSONObject对象,用于存储请求的json数据
+        //这里设置了微信支付所需的基本参数
+        //包括应用 ID（appid）、商户号（mchid）、商品描述（description）、商户订单号（out_trade_no）以及支付结果通知地址（notify_url）
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("appid", weChatProperties.getAppid());
         jsonObject.put("mchid", weChatProperties.getMchid());
         jsonObject.put("description", description);
         jsonObject.put("out_trade_no", orderNum);
         jsonObject.put("notify_url", weChatProperties.getNotifyUrl());
-
+        //设置支付金额： 使用嵌套的 JSONObject 对象来描述支付金额信息
         JSONObject amount = new JSONObject();
+        //首先，total.multiply(new BigDecimal(100)) 将金额从“元”转换为“分”。微信支付接口要求金额以“分”为单位，因此需要将原始金额乘以 100
+        //接着，.setScale(2, BigDecimal.ROUND_HALF_UP) 用于设置小数点后的精度为两位，并采用“四舍五入”的方式进行处理。
+        // 这是为了确保金额在转换过程中不会因为浮点数精度问题导致错误。
+        // 最后，.intValue() 将处理后的金额转换为整数类型，因为微信支付接口不接受小数金额。
+        // 例如，如果 total 的值为 12.345，经过上述处理后，结果将是 1235（单位为分）
         amount.put("total", total.multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).intValue());
         amount.put("currency", "CNY");
-
         jsonObject.put("amount", amount);
 
         JSONObject payer = new JSONObject();
@@ -151,9 +161,9 @@ public class WeChatPayUtil {
         jsonObject.put("payer", payer);
 
         String body = jsonObject.toJSONString();
+        //调用post方法发送
         return post(JSAPI, body);
     }
-
     /**
      * 小程序支付
      *
