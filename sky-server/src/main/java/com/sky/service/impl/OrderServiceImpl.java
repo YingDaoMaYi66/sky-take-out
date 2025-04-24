@@ -224,4 +224,40 @@ public class OrderServiceImpl implements OrderService {
         orderVO.setOrderDetailList(orderDetailList);
         return orderVO;
     }
+
+    /**
+     * 用户取消订单
+     * * @param id 订单id
+     */
+    @Override
+    public void userCancelById(Long id) throws Exception {
+        //根据id去查询订单
+        Orders ordersDB = orderMapper.getById(id);
+        //校验订单状态
+        if(ordersDB == null){
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        //订单状态： 1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
+        //当订单状态>2时，就已经无法通过程序退单了，需要打电话通知
+        if(ordersDB.getStatus()>2){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        Orders orders = new Orders();
+        orders.setId(ordersDB.getId());
+        //订单处于待接单下取消，需要进行退款
+            //调用微信支付退款接口
+//            weChatPayUtil.refund(
+//                    ordersDB.getNumber(),
+//                    ordersDB.getNumber(),
+//                    new BigDecimal(0.01),
+//                    new BigDecimal(0.01));
+            //修改支付状态为退款
+        orders.setPayStatus(Orders.REFUND);
+        //更新订单状态，取消原因，取消时间
+        orders.setStatus(Orders.CANCELLED);
+        orders.setCancelReason("用户取消");
+        orders.setCancelTime(LocalDateTime.now());
+        orderMapper.update(orders);
+
+    }
 }
