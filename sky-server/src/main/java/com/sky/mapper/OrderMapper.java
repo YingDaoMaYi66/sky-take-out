@@ -40,4 +40,12 @@ public interface OrderMapper {
     void updateStatus(Integer orderStatus, Integer orderPaidStatus, LocalDateTime checkOutTime, String orderNumber);
 
     Page<Orders> pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
+
+    /**
+     * 根据id查询订单
+     * @param id 订单id
+     * @return 订单
+     */
+    @Select("select * from orders where id = #{id}")
+    Orders getById(Long id);
 }
