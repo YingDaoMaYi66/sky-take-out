@@ -44,4 +44,10 @@ public interface ShoppingCartMapper {
      */
     @Delete("delete from shopping_cart where id = #{id}")
     void deleteById(Long id);
+    /**
+     * 批量插入购物车数据
+     * @param shoppingCartList 购物车对象列表
+     * @return 购物车对象
+     */
+    void insertBatch(List<ShoppingCart> shoppingCartList);
 }
