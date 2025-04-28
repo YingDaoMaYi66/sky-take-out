@@ -75,4 +75,22 @@ public interface OrderService {
      * @param ordersRejectionDTO 订单拒单DTO
      */
     void rejection(OrdersRejectionDTO ordersRejectionDTO) throws Exception;
+    /**
+     * 商家取消订单
+     *
+     * @param ordersCancelDTO 订单取消DTO
+     */
+    void cancel(OrdersCancelDTO ordersCancelDTO) throws Exception;
+    /**
+     * 派送订单
+     *
+     * @param id 订单id
+     */
+    void delivery(Long id);
+    /**
+     * 完成订单
+     *
+     * @param id 订单id
+     */
+    void complete(Long id);
 }

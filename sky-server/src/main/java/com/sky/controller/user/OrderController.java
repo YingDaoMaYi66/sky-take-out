@@ -92,6 +92,5 @@ public class OrderController {
     public Result repetition(@PathVariable Long id){
         orderService.repetition(id);
         return Result.success();
-
     }
 }
