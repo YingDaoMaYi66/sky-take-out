@@ -13,7 +13,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
+
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -51,7 +51,7 @@ public class OrderController {
      * @param id 订单id
      * @return 订单详情
      */
-    @GetMapping("/details/{id")
+    @GetMapping("/details/{id}")
     @ApiOperation("查询订单详情")
     public Result<OrderVO> details(@PathVariable("id") Long id){
         OrderVO orderVO = orderService.details(id);
@@ -59,7 +59,6 @@ public class OrderController {
     }
     /**
      * 商家接单:将订单状态修改为已接单
-     * @return
      */
     @PutMapping("/confirm")
     @ApiOperation("商家接单")
@@ -72,8 +71,6 @@ public class OrderController {
      * 商家拒单:也就是将订单状态改成已取消，只有订单处于“待接单”状态时可以执行拒单操作
      * 商家拒单时需要指定拒单原因
      * 商家拒单时如果用户已经完成支付，需要为用户退款
-     * @param ordersRejectionDTO
-     * @return
      */
     @PutMapping("/rejection")
     @ApiOperation("拒单")
@@ -94,8 +91,6 @@ public class OrderController {
     }
     /**
      * 派送订单
-     *
-     * @return
      */
     @PutMapping("/delivery/{id}")
     @ApiOperation("派送订单")
@@ -105,8 +100,6 @@ public class OrderController {
     }
     /**
      * 完成订单
-     *
-     * @return
      */
     @PutMapping("/complete/{id}")
     @ApiOperation("完成订单")
@@ -115,5 +108,16 @@ public class OrderController {
         return Result.success();
     }
 
+    /**
+     * 客户催单
+     * @param id 订单id
+     */
+    @GetMapping("/reminder/{id}")
+    @ApiOperation("客户催单")
+    public Result reminder(@PathVariable Long id) {
+        orderService.reminder(id);
+        return Result.success();
+
+    }
 
 }

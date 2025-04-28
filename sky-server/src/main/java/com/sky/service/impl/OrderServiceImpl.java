@@ -39,8 +39,10 @@ import java.util.stream.Collectors;
 public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderMapper orderMapper;
+
     @Autowired
     private OrderDetailMapper orderDetailMapper;
+
     @Autowired
     private AddressBookMapper addressBookMapper;
     @Autowired
@@ -55,7 +57,6 @@ public class OrderServiceImpl implements OrderService {
     private String ak;
     @Autowired
     private WebSocketServer webSocketServer;
-
 
     /**
      * 用户下单
@@ -174,6 +175,7 @@ public class OrderServiceImpl implements OrderService {
         webSocketServer.sendToAllClient(json);
         return vo;
     }
+
     /**
      * 订单支付成功修改订单状态
      * @param outTradeNo 订单号
@@ -237,7 +239,6 @@ public class OrderServiceImpl implements OrderService {
 
         return new PageResult(page.getTotal(), list);
     }
-
     /**
      * 查询订单详情
      * @param id 订单id
@@ -378,6 +379,7 @@ public class OrderServiceImpl implements OrderService {
         // 将该订单对应的所有菜品信息拼接在一起
         return String.join("", orderDishList);
     }
+
     /**
      * 各个状态的订单数量统计
      * @return 订单数量统计
@@ -395,7 +397,6 @@ public class OrderServiceImpl implements OrderService {
         orderStatisticsVO.setDeliveryInProgress(deliveryInProgress);
         return orderStatisticsVO;
     }
-
     /**
      * 商家接单
      * @param ordersConfirmDTO 订单配置DTO
@@ -442,6 +443,7 @@ public class OrderServiceImpl implements OrderService {
         orders.setCancelTime(LocalDateTime.now());
         orderMapper.update(orders);
     }
+
     /**
      * 取消订单
      *
@@ -492,7 +494,6 @@ public class OrderServiceImpl implements OrderService {
 
         orderMapper.update(orders);
     }
-
     /**
      * 完成订单
      *
@@ -515,6 +516,7 @@ public class OrderServiceImpl implements OrderService {
 
         orderMapper.update(orders);
     }
+
     /**
      * 检查客户的收货地址是否超出配送范围
      * @param address
@@ -583,5 +585,26 @@ public class OrderServiceImpl implements OrderService {
             //配送距离超过5000米
             throw new OrderBusinessException("超出配送范围");
         }
+    }
+    /**
+     * 客户催单
+     * @param id 订单id
+     */
+    @Override
+    public void reminder(Long id) {
+        // 根据id查询订单
+        Orders ordersDB = orderMapper.getById(id);
+
+        // 校验订单是否存在，并且状态为4
+        if (ordersDB == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        //通过websocket向客户端浏览器推送消息 type orderId content
+        Map map = new HashMap();
+        map.put("type", 2);//1表示来电提醒 2表示客户催单
+        map.put("orderId", id);
+        map.put("content", "订单号："+ordersDB.getNumber());
+        webSocketServer.sendToAllClient(JSON.toJSONString(map));
     }
 }
