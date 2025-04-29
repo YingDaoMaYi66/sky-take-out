@@ -3,6 +3,8 @@ package com.sky.mapper;
 import com.sky.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Mapper
 public interface UserMapper {
@@ -25,4 +27,11 @@ public interface UserMapper {
      */
     @Select("select * from user where id = #{id}")
     User getById(Long id);
+    /**
+     * 根据时间段查询用户
+     * @param beginTime 起始时间
+     * @param endTime 截止时间
+     * @return 用户信息
+     */
+    List<User> getCurrentUserCount(LocalDateTime beginTime, LocalDateTime endTime);
 }
