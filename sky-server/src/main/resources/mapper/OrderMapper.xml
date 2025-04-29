@@ -69,5 +69,12 @@
         </where>
         order by order_time desc
     </select>
+    <select id="getTurnoverStatistics" resultType="com.sky.entity.Orders">
+        SELECT *
+        FROM orders
+        WHERE order_time &gt;= #{beginTime}
+          AND order_time &lt;= #{endTime}
+          AND status = #{completed}
+    </select>
 
 </mapper>
