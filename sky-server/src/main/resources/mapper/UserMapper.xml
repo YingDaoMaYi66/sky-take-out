@@ -13,4 +13,15 @@
         WHERE create_time &gt;= #{beginTime}
           AND create_time &lt;= #{endTime}
     </select>
+    <select id="countByMap" resultType="java.lang.Integer">
+        select count(id) from user
+        <where>
+            <if test="begin != null">
+                and create_time &gt; #{begin}
+            </if>
+            <if test="end != null">
+                and create_time &lt; #{end}
+            </if>
+        </where>
+    </select>
 </mapper>
