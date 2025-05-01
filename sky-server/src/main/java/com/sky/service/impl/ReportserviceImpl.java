@@ -1,10 +1,13 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.entity.User;
 import com.sky.mapper.OrderMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -130,6 +134,120 @@ public class ReportserviceImpl implements ReportService {
                 .dateList(StringUtils.join(dateList,","))
                 .totalUserList(StringUtils.join(totalUserList,","))
                 .newUserList(StringUtils.join(newUserList,","))
+                .build();
+    }
+
+    /**
+     * 统计指定时间区间的订单数据
+     * @param begin 起始日期
+     * @param end 截止日期
+     * @return 返回OrderReportVO对象
+     */
+    @Override
+    public OrderReportVO getOrderStatistics(LocalDate begin, LocalDate end) {
+        //当前集合用于存放从begin到end范围内的每天的日期
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+        LocalDate date = begin;
+        while (!date.equals(end)) {
+            //日期计算，计算指定日期的后一天对应的日期
+            date = date.plusDays(1);
+            dateList.add(date);
+        }
+
+        //图表起始天的最早时间  注意：LocalDateTime 包含具体的时分秒，而LocalDate只包含日期
+        LocalDateTime beginTime = LocalDateTime.of(begin, LocalTime.MIN);
+        //图表结尾当天的最晚时间
+        LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
+
+        //获取时间范围内的总订单列表
+        List<Orders> orderList= orderMapper.getOrderStatistics(beginTime, endTime);
+        //构建日期与订单数量的映射
+        Map<LocalDate, Integer> dateToOrderCountMap = new HashMap<>();
+        for (LocalDate currentDate : dateList) {
+            // 获取当天的起始时间和结束时间
+            LocalDateTime dayStart = LocalDateTime.of(currentDate, LocalTime.MIN);
+            LocalDateTime dayEnd = LocalDateTime.of(currentDate, LocalTime.MAX);
+            // 查询当天的订单数量
+            int orderCount = (int) orderList.stream()
+                    .filter(order -> !order.getOrderTime().isBefore(dayStart) && !order.getOrderTime().isAfter(dayEnd))
+                    .count();
+            dateToOrderCountMap.put(currentDate, orderCount);
+        }
+        // 构建订单总量列表
+        List<Integer> orderTotalList = new ArrayList<>();
+        for (LocalDate currentDate : dateList) {
+            Integer TheDayOrdersCount = dateToOrderCountMap.getOrDefault(currentDate, 0);
+            orderTotalList.add(TheDayOrdersCount);
+        }
+
+
+        //构建当天完成订单数量列表
+        Map<LocalDate, Integer> dateToCompletedOrderCountMap = new HashMap<>();
+        for (LocalDate currentDate : dateList) {
+            // 获取当天的起始时间和结束时间
+            LocalDateTime dayStart = LocalDateTime.of(currentDate, LocalTime.MIN);
+            LocalDateTime dayEnd = LocalDateTime.of(currentDate, LocalTime.MAX);
+            // 查询当天的完成订单数量
+            int completedOrderCount = (int) orderList.stream()
+                    .filter(order -> Objects.equals(order.getStatus(), Orders.COMPLETED) && !order.getOrderTime().isBefore(dayStart) && !order.getOrderTime().isAfter(dayEnd))
+                    .count();
+            dateToCompletedOrderCountMap.put(currentDate, completedOrderCount);
+        }
+        //构建订单完成列表
+        List<Integer> orderCompletedList = new ArrayList<>();
+        for (LocalDate currentDate : dateList) {
+            Integer TheDayOrdersCount = dateToCompletedOrderCountMap.getOrDefault(currentDate, 0);
+            orderCompletedList.add(TheDayOrdersCount);
+        }
+        //订单总数
+        Integer totalOrderCount = orderTotalList.size();
+        //订单完成数
+        Integer completedOrderCount = (int)orderCompletedList.stream()
+                .filter(orderCount -> orderCount > 0)
+                .count();
+        //订单完成率
+        double orderCompletionRate = 0.0;
+        if(totalOrderCount !=0){
+            orderCompletionRate =  completedOrderCount.doubleValue() / (double) totalOrderCount;
+        }
+
+        return OrderReportVO.builder()
+                .orderCompletionRate(orderCompletionRate)
+                .totalOrderCount(totalOrderCount)
+                .validOrderCount(completedOrderCount)
+                .dateList(StringUtils.join(dateList,","))
+                .orderCountList(StringUtils.join(orderTotalList, ","))
+                .validOrderCountList(StringUtils.join(orderCompletedList, ","))
+                .build();
+    }
+    /**
+     * 获取销售前十的商品数据
+     *
+     * @param begin 起始日期
+     * @param end   截止日期
+     * @return SalesTop10ReportVO
+     */
+    @Override
+    public SalesTop10ReportVO getSalesTop10(LocalDate begin, LocalDate end) {
+        //图表起始天的最早时间  注意：LocalDateTime 包含具体的时分秒，而LocalDate只包含日期
+        LocalDateTime beginTime = LocalDateTime.of(begin, LocalTime.MIN);
+        //图表结尾当天的最晚时间
+        LocalDateTime endTime = LocalDateTime.of(end, LocalTime.MAX);
+        List<GoodsSalesDTO> salesTop10 = orderMapper.getSalesTop(beginTime, endTime);
+
+        //获取菜品及其套餐列表
+        //:: 是 Java 中的方法引用符号，用于简化 Lambda 表达式的写法。它可以引用类的静态方法、实例方法或构造方法。
+        List<String>names = salesTop10.stream().map(GoodsSalesDTO::getName).collect(Collectors.toList());
+        String nameList = StringUtils.join(names, ",");
+
+        //获取菜品销量列表
+        List<Integer> numbers = salesTop10.stream().map(GoodsSalesDTO::getNumber).collect(Collectors.toList());
+        String numberList = StringUtils.join(numbers, ",");
+
+        return SalesTop10ReportVO.builder()
+                .nameList(nameList)
+                .numberList(numberList)
                 .build();
     }
 }
